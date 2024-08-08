@@ -67,6 +67,8 @@ WG_TUNNEL_GATEWAY_IP="192.168.168.0"
 WG_TUNNEL_WGVPS_IP="192.168.168.1"
 WG_TUNNEL_BACKEND_IP="192.168.168.2"
 
+WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+
 # ----------------------------------
 
 # stop & disable the firewall to avoid issues
@@ -125,7 +127,7 @@ ip link add $WG_TUNNEL_INTERFACE_NAME type wireguard
 ip addr add $WG_TUNNEL_WGVPS_IP/24 dev $WG_TUNNEL_INTERFACE_NAME
 
 # set the private key for the wg interface then bring the wg interface up
-wg set $WG_TUNNEL_INTERFACE_NAME private-key ./wg_private
+wg set $WG_TUNNEL_INTERFACE_NAME private-key $WG_PRIVATE_KEY_FILE_PATH
 ip link set $WG_TUNNEL_INTERFACE_NAME up
 
 # add server B as a peer on our wireguard interface
@@ -198,6 +200,8 @@ WG_TUNNEL_BACKEND_IP="192.168.168.2"
 WG_TUNNEL_RTTABLES_ID="100"
 WG_TUNNEL_RTTABLES_NAME="WGTUN"
 
+WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+
 # ----------------------------------
 
 # add a new wireguard interface
@@ -207,7 +211,7 @@ ip link add $WG_TUNNEL_INTERFACE_NAME type wireguard
 ip addr add $WG_TUNNEL_BACKEND_IP/24 dev $WG_TUNNEL_INTERFACE_NAME
 
 # set the private key for the wg interface then bring the wg interface up
-wg set $WG_TUNNEL_INTERFACE_NAME private-key ./wg_private
+wg set $WG_TUNNEL_INTERFACE_NAME private-key $WG_PRIVATE_KEY_FILE_PATH
 ip link set $WG_TUNNEL_INTERFACE_NAME up
 
 # add server A as a peer on our wireguard interface. we need to allow all the IPs to be able to use the public IP of server A
@@ -431,6 +435,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      WG_TUNNEL_RTTABLES_ID="100"
      WG_TUNNEL_RTTABLES_NAME="WGTUN"
 
+     WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+
      BACKEND_SERVER_MAIN_INTERFACE_NAME="eth0"
     
      # ----------------------------------
@@ -444,7 +450,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      ip addr add $WG_TUNNEL_BACKEND_IP/24 dev $WG_TUNNEL_INTERFACE_NAME
     
      # set the private key for the wg interface then bring the wg interface up
-     wg set $WG_TUNNEL_INTERFACE_NAME private-key ./wg_private
+     wg set $WG_TUNNEL_INTERFACE_NAME private-key $WG_PRIVATE_KEY_FILE_PATH
      ip link set $WG_TUNNEL_INTERFACE_NAME up
     
      # add server A as a peer on our wireguard interface. we need to allow all the IPs to be able to use the public IP of server A
