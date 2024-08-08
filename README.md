@@ -154,7 +154,7 @@ ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 
 `delWG.sh` on Server A:
 ```
-!/bin/bash
+#!/bin/bash
 
 # This script is placed on the WireGuard VPS
 
@@ -507,6 +507,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      #
      # Variables
      #
+
+     WG_VPS_MAIN_IP="[the main public ip address of the wireguard vps here]" # NOTE: this is recommended to be the main public IP of the WireGuard VPS. even if you are trying to use an additional IP that belongs to the WireGuard VPS, it's nicer to put the main IP address here.
     
      WG_TUNNEL_INTERFACE_NAME="wg0"
      WG_TUNNEL_GATEWAY_IP="192.168.168.0"
