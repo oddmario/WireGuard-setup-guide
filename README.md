@@ -483,12 +483,15 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      ip route add default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
 
      # dns servers are required otherwise all dns resolutions will fail
+     # the reason this happens is because in a command below we are about to route all the traffic through the wireguard tunnel, this also includes DNS requests
      echo 'nameserver 1.1.1.1' > /etc/resolv.conf
      echo 'nameserver 1.0.0.1' >> /etc/resolv.conf
 
      # finally cut over our routing
      # NOTE: this will cut all access to your original BACKEND IP!
 
+     # route all the traffic through the wireguard tunnel. except for $WG_VPS_MAIN_IP, which still will be routed through the original gateway of server B [this server] instead.
+     # the reason we put this exception is because $WG_VPS_MAIN_IP is used as the wireguard peer address for our tunnel (its the IP that connects this server to server A). we need it to be accessible so our wireguard tunnel can function properly.
      ip route add $WG_VPS_MAIN_IP via $GATEWAY_IP dev $BACKEND_SERVER_MAIN_INTERFACE_NAME onlink
      ip route replace default via $WG_TUNNEL_WGVPS_IP
     
