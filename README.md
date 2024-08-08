@@ -68,6 +68,8 @@ WG_TUNNEL_WGVPS_IP="192.168.168.1"
 WG_TUNNEL_BACKEND_IP="192.168.168.2"
 
 WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+WG_LISTEN_PORT="51820"
+WG_BACKEND_LISTEN_PORT="51820"
 
 # ----------------------------------
 
@@ -131,7 +133,7 @@ wg set $WG_TUNNEL_INTERFACE_NAME private-key $WG_PRIVATE_KEY_FILE_PATH
 ip link set $WG_TUNNEL_INTERFACE_NAME up
 
 # add server B as a peer on our wireguard interface
-wg set $WG_TUNNEL_INTERFACE_NAME listen-port 51820 peer $BACKEND_WG_PUBKEY allowed-ips $WG_TUNNEL_BACKEND_IP/32 endpoint $BACKEND_IP:51820 persistent-keepalive 25
+wg set $WG_TUNNEL_INTERFACE_NAME listen-port $WG_LISTEN_PORT peer $BACKEND_WG_PUBKEY allowed-ips $WG_TUNNEL_BACKEND_IP/32 endpoint $BACKEND_IP:$WG_BACKEND_LISTEN_PORT persistent-keepalive 25
 
 # ensure that iptables won't block any traffic from/to peer B
 iptables -A FORWARD -i wg+ -j ACCEPT
@@ -201,6 +203,8 @@ WG_TUNNEL_RTTABLES_ID="100"
 WG_TUNNEL_RTTABLES_NAME="WGTUN"
 
 WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+WG_LISTEN_PORT="51820"
+WG_WG_VPS_LISTEN_PORT="51820"
 
 # ----------------------------------
 
@@ -215,7 +219,7 @@ wg set $WG_TUNNEL_INTERFACE_NAME private-key $WG_PRIVATE_KEY_FILE_PATH
 ip link set $WG_TUNNEL_INTERFACE_NAME up
 
 # add server A as a peer on our wireguard interface. we need to allow all the IPs to be able to use the public IP of server A
-wg set $WG_TUNNEL_INTERFACE_NAME listen-port 51820 peer $WG_VPS_WG_PUBKEY allowed-ips 0.0.0.0/0,::/0 endpoint $WG_VPS_MAIN_IP:51820 persistent-keepalive 25
+wg set $WG_TUNNEL_INTERFACE_NAME listen-port $WG_LISTEN_PORT peer $WG_VPS_WG_PUBKEY allowed-ips 0.0.0.0/0,::/0 endpoint $WG_VPS_MAIN_IP:$WG_WG_VPS_LISTEN_PORT persistent-keepalive 25
 
 # setup the routing table if necessary
 if ! grep -Fxq "$WG_TUNNEL_RTTABLES_ID $WG_TUNNEL_RTTABLES_NAME" /etc/iproute2/rt_tables
@@ -332,6 +336,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      WG_TUNNEL_RTTABLES_NAME="WGTUN"
 
      WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+     WG_LISTEN_PORT="51820"
+     WG_WG_VPS (or BACKEND)_LISTEN_PORT="51820"
      ```
 
      to be:
@@ -346,6 +352,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      WG_TUNNEL_RTTABLES_NAME="WGTUN2"
 
      WG_PRIVATE_KEY_FILE_PATH="/root/wg_private2" # make sure to generate this private key as well
+     WG_LISTEN_PORT="51821" # must change the ports because port 51820 will be already in use by the first WireGuard tunnel
+     WG_WG_VPS (or BACKEND)_LISTEN_PORT="51821"
      ```
 
      then modify `WG_VPS_IP` and `BACKEND_IP` to be the additional public IP of the WireGuard VPS and the IP of the new (or the same) backend server respectively. And make sure to modify the rest of the variables as well (public keys, etc).
@@ -440,6 +448,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      WG_TUNNEL_RTTABLES_NAME="WGTUN"
 
      WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
+     WG_LISTEN_PORT="51820"
+     WG_WG_VPS_LISTEN_PORT="51820"
 
      BACKEND_SERVER_MAIN_INTERFACE_NAME="eth0"
     
@@ -458,7 +468,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      ip link set $WG_TUNNEL_INTERFACE_NAME up
     
      # add server A as a peer on our wireguard interface. we need to allow all the IPs to be able to use the public IP of server A
-     wg set $WG_TUNNEL_INTERFACE_NAME listen-port 51820 peer $WG_VPS_WG_PUBKEY allowed-ips 0.0.0.0/0,::/0 endpoint $WG_VPS_MAIN_IP:51820 persistent-keepalive 25
+     wg set $WG_TUNNEL_INTERFACE_NAME listen-port $WG_LISTEN_PORT peer $WG_VPS_WG_PUBKEY allowed-ips 0.0.0.0/0,::/0 endpoint $WG_VPS_MAIN_IP:$WG_WG_VPS_LISTEN_PORT persistent-keepalive 25
     
      # setup the routing table if necessary
      if ! grep -Fxq "$WG_TUNNEL_RTTABLES_ID $WG_TUNNEL_RTTABLES_NAME" /etc/iproute2/rt_tables
