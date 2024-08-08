@@ -330,6 +330,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
     
      WG_TUNNEL_RTTABLES_ID="100"
      WG_TUNNEL_RTTABLES_NAME="WGTUN"
+
+     WG_PRIVATE_KEY_FILE_PATH="/root/wg_private"
      ```
 
      to be:
@@ -342,6 +344,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
     
      WG_TUNNEL_RTTABLES_ID="200"
      WG_TUNNEL_RTTABLES_NAME="WGTUN2"
+
+     WG_PRIVATE_KEY_FILE_PATH="/root/wg_private2" # make sure to generate this private key as well
      ```
 
      then modify `WG_VPS_IP` and `BACKEND_IP` to be the additional public IP of the WireGuard VPS and the IP of the new (or the same) backend server respectively. And make sure to modify the rest of the variables as well (public keys, etc).
