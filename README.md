@@ -577,7 +577,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
    iptables -t nat -A PREROUTING -d $WG_VPS_IP -p [protocol here] -m [protocol here] --dport [port here] -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
    ```
 
-   for example, to forward all the data to a Webserver (Port TCP 80) we have to run:
+   for example, to forward all the data to a Webserver (Port TCP 80) we have to put:
    ```
    iptables -t nat -A PREROUTING -d $WG_VPS_IP -p tcp -m tcp --dport 80 -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
    ```
