@@ -61,7 +61,7 @@ and once again, keep the `public key of server B` somewhere safe and sound becau
 #
 
 # WG_VPS_IP below doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard tunnel use to forward all the traffic to server B. However if the WireGuard VPS has only one public IP (which is the main IP address), you can put it here.
-WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to make its traffic forwarded to the backend server]"
+WG_VPS_IP="[the wireguard vps public ip address that you are attempting to make its traffic get forwarded to the backend server]"
 BACKEND_IP="[backend server public ip address here]"
 WG_VPS_MAIN_INTERFACE="eth0"
 
@@ -175,7 +175,7 @@ ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 #
 
 # WG_VPS_IP below doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard tunnel use to forward all the traffic to server B. However if the WireGuard VPS has only one public IP (which is the main IP address), you can put it here.
-WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to make its traffic forwarded to the backend server]"
+WG_VPS_IP="[the wireguard vps public ip address that you are attempting to make its traffic get forwarded to the backend server]"
 
 WG_TUNNEL_INTERFACE_NAME="wg0"
 WG_TUNNEL_GATEWAY_IP="192.168.168.0"
