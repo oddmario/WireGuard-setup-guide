@@ -122,6 +122,13 @@ ethtool -K $WG_VPS_MAIN_INTERFACE gro off gso off tso off
 # clear all iptables rules
 iptables -F
 
+# we are setting up the wireguard interface manually using the `ip` (iproute2) commands, then we will configure the wireguard server & peer later using `wg set`.
+# ... there are other tools that make setting this up possible through a .conf file (the wg-quick command). however wg-quick automatically sets up the routing for us, which is something that we don't want because we will use our own custom routes later.
+# ... generally, wg-quick is just a wrapper that does the same thing that we are about to do, but we don't want the routing that it does. hence why we're doing all this manually.
+# ref: https://www.reddit.com/r/WireGuard/comments/m8jwnt/comment/gri660w/?utm_source=share&utm_medium=mweb3x&utm_name=mweb3xcss&utm_term=1&utm_content=share_button
+# ref: https://superuser.com/a/1744609/936854
+# ref: https://engineerworkshop.com/blog/how-to-set-up-a-wireguard-client-on-linux-with-conf-file/
+
 # add a new wireguard interface
 ip link add $WG_TUNNEL_INTERFACE_NAME type wireguard
 
@@ -207,6 +214,13 @@ WG_LISTEN_PORT="51820"
 WG_WG_VPS_LISTEN_PORT="51820"
 
 # ----------------------------------
+
+# we are setting up the wireguard interface manually using the `ip` (iproute2) commands, then we will configure the wireguard server & peer later using `wg set`.
+# ... there are other tools that make setting this up possible through a .conf file (the wg-quick command). however wg-quick automatically sets up the routing for us, which is something that we don't want because we will use our own custom routes later.
+# ... generally, wg-quick is just a wrapper that does the same thing that we are about to do, but we don't want the routing that it does. hence why we're doing all this manually.
+# ref: https://www.reddit.com/r/WireGuard/comments/m8jwnt/comment/gri660w/?utm_source=share&utm_medium=mweb3x&utm_name=mweb3xcss&utm_term=1&utm_content=share_button
+# ref: https://superuser.com/a/1744609/936854
+# ref: https://engineerworkshop.com/blog/how-to-set-up-a-wireguard-client-on-linux-with-conf-file/
 
 # add a new wireguard interface
 ip link add $WG_TUNNEL_INTERFACE_NAME type wireguard
@@ -456,6 +470,13 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      # ----------------------------------
 
      GATEWAY_IP=$(ip route show dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | grep default | awk '{print $3}' | awk 'NR==1{print; exit}')
+
+     # we are setting up the wireguard interface manually using the `ip` (iproute2) commands, then we will configure the wireguard server & peer later using `wg set`.
+     # ... there are other tools that make setting this up possible through a .conf file (the wg-quick command). however wg-quick automatically sets up the routing for us, which is something that we don't want because we will use our own custom routes later.
+     # ... generally, wg-quick is just a wrapper that does the same thing that we are about to do, but we don't want the routing that it does. hence why we're doing all this manually.
+     # ref: https://www.reddit.com/r/WireGuard/comments/m8jwnt/comment/gri660w/?utm_source=share&utm_medium=mweb3x&utm_name=mweb3xcss&utm_term=1&utm_content=share_button
+     # ref: https://superuser.com/a/1744609/936854
+     # ref: https://engineerworkshop.com/blog/how-to-set-up-a-wireguard-client-on-linux-with-conf-file/
     
      # add a new wireguard interface
      ip link add $WG_TUNNEL_INTERFACE_NAME type wireguard
@@ -559,6 +580,39 @@ Source IP Address: [the public IP of the backend server]/32
 Protocol: ALL (All Protocols)
 Action: Allow
 ```
+
+- Another note, the optimal MTU for the wg interfaces for BuyVM (**ONLY for the DDoS protected IPs**) appears to be 1360.
+  > https://discord.com/channels/427396480437977118/427505056821018645/1234689531232518166
+  >
+  > — 04/30/2024 5:07 AM
+  > 
+  > hello
+  > 
+  > what is the wireguard mtu that has to be set? the discord link isnt working so i cant check the pin
+  > 
+  > exor — 04/30/2024 5:15 AM
+  > 
+  > Aretiger
+  > 
+  > —
+  > 
+  > 07/06/2023 10:18 AM
+  > 
+  > Hello! WireGuard MTU: 1360
+  > 
+  >  
+  > Please make sure the correct MTU is set everywhere (WireGuard client-side tunnel config, server-side WireGuard configuration, plus the WireGuard tunnel interface on the server).
+  > 
+  > Francisco — 04/30/2024 5:37 AM
+  > 
+  > that mtu's just for DDOS protected IP's
+  
+  So in order to use this, run this command on both server A and server B [of course after setting up the tunnel using the makeWG.sh script]:
+  ```
+  ip link set dev wg0 mtu 1360
+  ```
+
+  And make sure to apply the same to any other WireGuard interfaces (e.g. wg1, etc) if you have multiple tunnels.
 
 ## Inspiration
 - https://www.wireguard.com/quickstart/
