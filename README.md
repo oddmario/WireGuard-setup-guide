@@ -19,9 +19,13 @@ If you would like to use GRE (or OpenVPN) instead of a WireGuard tunnel to link 
 Generally, we just need a way to link between the two servers (either WireGuard, GRE or even OpenVPN). Then the rest of the commands to setup the routing through iproute2 and iptables should be similar.
 
 ## Requirements
-Server A needs to have at least one primary public IP address that we are going to use as the peer address for our WireGuard tunnel(s).
-
-And similary, Server B needs to have at least one primary public IP address so we can use it inside the tunnel.
+- Server A needs to have at least one primary public IP address that we are going to use as the peer address for our WireGuard tunnel(s).
+- And similary, Server B needs to have at least one primary public IP address so we can use it inside the tunnel.
+- Make sure the following packages are installed on the systems of both server A and server B:
+     - iproute2 (the `ip` command)
+     - ethtool
+     - iproute-tc (the `tc` command)
+     - wireguard (refer to https://www.wireguard.com/install/)
 
 -----
 
@@ -56,7 +60,8 @@ and once again, keep the `public key of server B` somewhere safe and sound becau
 # Variables
 #
 
-WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to forward to the backend server]" # This doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard use to forward all the traffic to server B
+# WG_VPS_IP below doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard tunnel use to forward all the traffic to server B. However if the WireGuard VPS has only one public IP (which is the main IP address), you can put it here.
+WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to make its traffic forwarded to the backend server]"
 BACKEND_IP="[backend server public ip address here]"
 WG_VPS_MAIN_INTERFACE="eth0"
 
@@ -169,7 +174,8 @@ ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 # Variables
 #
 
-WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to forward to the backend server]" # This doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard use to forward all the traffic to server B
+# WG_VPS_IP below doesn't have to be the main IP address of the WireGuard VPS. you can put an additional/secondary public IP linked to the WireGuard VPS here if that's what you are attempting to make the WireGuard tunnel use to forward all the traffic to server B. However if the WireGuard VPS has only one public IP (which is the main IP address), you can put it here.
+WG_VPS_IP="[the public ip address of the wireguard vps that you are attempting to make its traffic forwarded to the backend server]"
 
 WG_TUNNEL_INTERFACE_NAME="wg0"
 WG_TUNNEL_GATEWAY_IP="192.168.168.0"
@@ -314,7 +320,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
 
      If this solves the problem but you would like to keep your firewall enabled, make sure the public IP address(es) of the WireGuard VPS and the private IP address(es) of the WireGuard VPS on the WireGuard tunnel (e.g. 192.168.168.1) are trusted on the firewall of the backend server.
 
-5. ⚠️ If you have multiple IP addresses on your WireGuard VPS, make sure they are linked to the operating system first before attempting to involve them in a WireGuard tunnel! **This is super important! you can't start magically using an IP address when the operating system does not know about it.**
+5. ⚠️ If you have multiple IP addresses on your WireGuard VPS, make sure they are linked to the operating system first before attempting to involve them in a WireGuard tunnel! **This is super important! you can't magically start using an IP address when the operating system does not know about it.**
 
      For example, if your WireGuard VPS has the public IP address `a.b.c.d` as the main IP, and it also has `e.f.g.h` as an additional IP. Make sure the latter is configured on the WireGuard VPS system.
 
