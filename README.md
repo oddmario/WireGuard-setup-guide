@@ -555,9 +555,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      # https://serverfault.com/questions/31170/how-to-find-the-gateway-ip-address-in-linux/31204#31204
      GATEWAY_IP=$(ip route show 0.0.0.0/0 dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | cut -d\  -f3)
 
-     ip route del default
+     ip route del default via $WG_TUNNEL_WGVPS_IP
      ip route del $WG_VPS_MAIN_IP via $GATEWAY_IP dev $BACKEND_SERVER_MAIN_INTERFACE_NAME onlink
-     ip route replace default via $GATEWAY_IP
     
      ip route del default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
      ip rule del from $WG_TUNNEL_GATEWAY_IP/24 table $WG_TUNNEL_RTTABLES_NAME
