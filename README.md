@@ -566,7 +566,29 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      
      As for the scripts of server A [the WireGuard VPS], leave them unchanged.
 
-9. Reboot the WireGuard VPS (and preferably but not necessarily the backend server[s] too) after setting up or modifying any WG tunnels to ensure that no unneeded leftovers are there. This really makes a difference most of the time.
+9. If you want to forward just certain ports instead of forwarding all the traffic:
+   In the `makeWG.sh` script of Server A, replace:
+   ```
+   iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
+   ```
+   with:
+   ```
+   iptables -t nat -A PREROUTING -d $WG_VPS_IP -p [protocol here] -m [protocol here] --dport [port here] -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
+   ```
+
+   for example, to forward all the data to a Webserver (Port TCP 80) we have to run:
+   ```
+   iptables -t nat -A PREROUTING -d $WG_VPS_IP -p tcp -m tcp --dport 80 -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
+   ```
+
+   Also make sure to edit the `delWG.sh` script of Server A and add the same iptables command, but with replacing the `-A` argument with `-D` to undo the iptables rule.
+   
+   For example:
+   ```
+   iptables -t nat -D PREROUTING -d $WG_VPS_IP -p tcp -m tcp --dport 80 -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
+   ```
+
+10. Reboot the WireGuard VPS (and preferably but not necessarily the backend server[s] too) after setting up or modifying any WG tunnels to ensure that no unneeded leftovers are there. This really makes a difference most of the time.
 
 ## ⚠️ An important note if you are using BuyVM as your WireGuard VPS + a DDoS protected IP (or more) from them
 
