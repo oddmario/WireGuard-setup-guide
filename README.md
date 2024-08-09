@@ -475,7 +475,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
     
      # ----------------------------------
 
-     GATEWAY_IP=$(ip route show dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | grep default | awk '{print $3}' | awk 'NR==1{print; exit}')
+     # https://serverfault.com/questions/31170/how-to-find-the-gateway-ip-address-in-linux/31204#31204
+     GATEWAY_IP=$(ip route show 0.0.0.0/0 dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | cut -d\  -f3)
 
      # we are setting up the wireguard interface manually using the `ip` (iproute2) commands, then we will configure the wireguard server & peer later using `wg set`.
      # ... there are other tools that make setting this up possible through a .conf file (the wg-quick command). however wg-quick automatically sets up the routing for us, which is something that we don't want because we will use our own custom routes later.
@@ -551,7 +552,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
     
      # ----------------------------------
 
-     GATEWAY_IP=$(ip route show dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | grep default | awk '{print $3}' | awk 'NR==1{print; exit}')
+     # https://serverfault.com/questions/31170/how-to-find-the-gateway-ip-address-in-linux/31204#31204
+     GATEWAY_IP=$(ip route show 0.0.0.0/0 dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | cut -d\  -f3)
 
      ip route del default
      ip route del $WG_VPS_MAIN_IP via $GATEWAY_IP dev $BACKEND_SERVER_MAIN_INTERFACE_NAME onlink
