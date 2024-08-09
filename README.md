@@ -567,6 +567,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      As for the scripts of server A [the WireGuard VPS], leave them unchanged.
 
 9. If you want to forward just certain ports instead of forwarding all the traffic:
+    
    In the `makeWG.sh` script of Server A, replace:
    ```
    iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
