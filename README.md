@@ -115,12 +115,12 @@ sysctl -w net.unix.max_dgram_qlen=50
 sysctl -w net.ipv4.neigh.default.proxy_qlen=96
 sysctl -w net.ipv4.neigh.default.unres_qlen=6
 sysctl -w net.ipv4.tcp_congestion_control=bbr
-sysctl -w net.core.default_qdisc=fq
+sysctl -w net.core.default_qdisc=fq_codel
 sysctl -w net.ipv4.tcp_notsent_lowat=16384
 
 # tune the networking
 modprobe tcp_bbr
-tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq
+tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq_codel
 ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 15000
 ethtool -K $WG_VPS_MAIN_INTERFACE gro off gso off tso off
 
@@ -159,7 +159,7 @@ iptables -t nat -A POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o wg+ -j SNAT --to
 iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
 
 # tune the wireguard interface
-tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq
+tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel
 ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 15000
 ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 ```
@@ -254,7 +254,7 @@ ip rule add from $WG_TUNNEL_GATEWAY_IP/24 table $WG_TUNNEL_RTTABLES_NAME
 ip route add default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
 
 # tune the wireguard interface
-tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq
+tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel
 ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 15000
 ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 ```
@@ -524,7 +524,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      ip route replace default via $WG_TUNNEL_WGVPS_IP
     
      # tune the wireguard interface
-     tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq
+     tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel
      ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 15000
      ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
      ```
