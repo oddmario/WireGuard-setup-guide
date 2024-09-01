@@ -100,10 +100,10 @@ sysctl -w net.ipv6.conf.all.disable_ipv6=1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1
 sysctl -w net.ipv6.conf.lo.disable_ipv6=1
 sysctl -w fs.file-max=2097152
-sysctl -w fs.inotify.max_user_instances=1048576
-sysctl -w fs.inotify.max_user_watches=1048576
-sysctl -w fs.nr_open=1048576
-sysctl -w fs.aio-max-nr=1048576
+sysctl -w fs.inotify.max_user_instances=2097152
+sysctl -w fs.inotify.max_user_watches=2097152
+sysctl -w fs.nr_open=2097152
+sysctl -w fs.aio-max-nr=2097152
 sysctl -w net.core.somaxconn=65535
 sysctl -w net.core.netdev_max_backlog=16384
 sysctl -w net.core.dev_weight=64
@@ -297,14 +297,14 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
   * Disable SELinux permanently
   * Add this to `/etc/security/limits.conf`:
     ```
-    * soft nproc 1048576
-    * hard nproc 1048576
-    * soft nofile 1048576
-    * hard nofile 1048576
-    * soft stack 1048576
-    * hard stack 1048576
-    * soft memlock unlimited
-    * hard memlock unlimited
+    * soft nproc 2097152
+    * hard nproc 2097152
+    * soft nofile 2097152
+    * hard nofile 2097152
+    ```
+  * Edit both `/etc/systemd/system.conf` and `/etc/systemd/user.conf`, and add this line at the end of both files:
+    ```
+    DefaultLimitNOFILE=2097152
     ```
   * Reboot the VPS after updating the system & disabling SELinux
 
