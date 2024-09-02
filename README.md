@@ -111,12 +111,8 @@ sysctl -w net.ipv4.ip_local_port_range="1024 65535"
 sysctl -w net.nf_conntrack_max=1000000
 sysctl -w net.netfilter.nf_conntrack_max=1000000
 sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
-sysctl -w net.unix.max_dgram_qlen=50
-sysctl -w net.ipv4.neigh.default.proxy_qlen=96
-sysctl -w net.ipv4.neigh.default.unres_qlen=6
 sysctl -w net.ipv4.tcp_congestion_control=bbr
 sysctl -w net.core.default_qdisc=fq_codel
-sysctl -w net.ipv4.tcp_notsent_lowat=16384
 
 # tune the networking
 modprobe tcp_bbr
@@ -302,10 +298,12 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
     * soft nofile 2097152
     * hard nofile 2097152
     ```
-  * Edit both `/etc/systemd/system.conf` and `/etc/systemd/user.conf`, and add this line at the end of both files:
+  * Create the two files `/etc/systemd/system.conf.d/10-filelimit.conf` and `/etc/systemd/user.conf.d/10-filelimit.conf` with this content:
     ```
+    [Manager]
     DefaultLimitNOFILE=2097152
     ```
+    Note that you may need to create the `/etc/systemd/system.conf.d/` and `/etc/systemd/user.conf.d/` directories if they don't exist.
   * Reboot the VPS after updating the system & disabling SELinux
 
 2. A bad provider for the WireGuard tunnel will cause packet loss.
