@@ -82,6 +82,7 @@ WG_BACKEND_LISTEN_PORT="51820"
 systemctl stop firewalld
 systemctl disable firewalld
 
+modprobe ip_conntrack
 # enable the required kernel tweaks for the purpose of tunneling
 sysctl -w net.ipv4.ip_forward=1
 sysctl -w net.ipv4.conf.$WG_VPS_MAIN_INTERFACE.proxy_arp=1
@@ -106,6 +107,7 @@ sysctl -w fs.nr_open=2097152
 sysctl -w fs.aio-max-nr=2097152
 sysctl -w net.ipv4.tcp_syncookies=1
 sysctl -w net.core.somaxconn=65535
+sysctl -w net.ipv4.tcp_max_syn_backlog=4096
 sysctl -w net.core.netdev_max_backlog=65535
 sysctl -w net.core.dev_weight=128
 sysctl -w net.ipv4.ip_local_port_range="1024 65535"
@@ -114,6 +116,9 @@ sysctl -w net.netfilter.nf_conntrack_max=1000000
 sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
 sysctl -w net.ipv4.tcp_congestion_control=bbr
 sysctl -w net.core.default_qdisc=fq_codel
+sysctl -w net.core.optmem_max=16777216
+sysctl -w net.core.rmem_max=16777216
+sysctl -w net.core.wmem_max=16777216
 
 # tune the networking
 modprobe tcp_bbr
@@ -145,12 +150,12 @@ ip link set $WG_TUNNEL_INTERFACE_NAME up
 wg set $WG_TUNNEL_INTERFACE_NAME listen-port $WG_LISTEN_PORT peer $BACKEND_WG_PUBKEY allowed-ips $WG_TUNNEL_BACKEND_IP/32 endpoint $BACKEND_IP:$WG_BACKEND_LISTEN_PORT persistent-keepalive 25
 
 # ensure that iptables won't block any traffic from/to peer B
-iptables -A FORWARD -i wg+ -j ACCEPT
+iptables -A FORWARD -i $WG_TUNNEL_INTERFACE_NAME -j ACCEPT
 iptables -A FORWARD -d $WG_TUNNEL_BACKEND_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -s $WG_TUNNEL_BACKEND_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
 # forward any traffic coming from the $WG_TUNNEL_GATEWAY_IP/24 subnet to the public IP of server A. this will give server B the ability to use the network of server A through the wireguard tunnel
-iptables -t nat -A POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o wg+ -j SNAT --to-source $WG_VPS_IP
+iptables -t nat -A POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o $WG_TUNNEL_INTERFACE_NAME -j SNAT --to-source $WG_VPS_IP
 
 # forward any traffic coming to the public IP of server A to server B. be warned that upon running the below command, you won't be able to access the original server A through its public IP anymore. it will mostly connect you to server B instead
 iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
@@ -181,9 +186,10 @@ WG_TUNNEL_BACKEND_IP="192.168.168.2"
 
 # ----------------------------------
 
+iptables -D FORWARD -i $WG_TUNNEL_INTERFACE_NAME -j ACCEPT
 iptables -D FORWARD -d $WG_TUNNEL_BACKEND_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -D FORWARD -s $WG_TUNNEL_BACKEND_IP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-iptables -t nat -D POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o wg+ -j SNAT --to-source $WG_VPS_IP
+iptables -t nat -D POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o $WG_TUNNEL_INTERFACE_NAME -j SNAT --to-source $WG_VPS_IP
 iptables -t nat -D PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
 ip addr del $WG_TUNNEL_WGVPS_IP/24 dev $WG_TUNNEL_INTERFACE_NAME
 ip link set $WG_TUNNEL_INTERFACE_NAME down
