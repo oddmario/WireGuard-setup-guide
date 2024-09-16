@@ -525,8 +525,9 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
 
      # route all the traffic through the wireguard tunnel. except for $WG_VPS_MAIN_IP, which still will be routed through the original gateway of server B [this server] instead.
      # the reason we put this exception is because $WG_VPS_MAIN_IP is used as the wireguard peer address for our tunnel (its the IP that connects this server to server A). we need it to be accessible so our wireguard tunnel can function properly.
+     # `metric 0` means the new `default` route takes the highest priority [so it can replace the original default route]
      ip route add $WG_VPS_MAIN_IP via $GATEWAY_IP dev $BACKEND_SERVER_MAIN_INTERFACE_NAME onlink
-     ip route replace default via $WG_TUNNEL_WGVPS_IP
+     ip route add default via $WG_TUNNEL_WGVPS_IP metric 0
     
      # tune the wireguard interface
      tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel
@@ -560,7 +561,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      # https://serverfault.com/questions/31170/how-to-find-the-gateway-ip-address-in-linux/31204#31204
      GATEWAY_IP=$(ip route show 0.0.0.0/0 dev $BACKEND_SERVER_MAIN_INTERFACE_NAME | cut -d\  -f3)
 
-     ip route del default via $WG_TUNNEL_WGVPS_IP
+     ip route del default via $WG_TUNNEL_WGVPS_IP metric 0
      ip route del $WG_VPS_MAIN_IP via $GATEWAY_IP dev $BACKEND_SERVER_MAIN_INTERFACE_NAME onlink
     
      ip route del default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
