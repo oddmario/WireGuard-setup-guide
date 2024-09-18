@@ -91,8 +91,6 @@ sysctl -w net.ipv4.conf.all.rp_filter=0
 sysctl -w net.ipv4.conf.default.rp_filter=0
 sysctl -w net.ipv4.conf.all.accept_redirects=0
 sysctl -w net.ipv4.conf.default.accept_redirects=0
-sysctl -w net.ipv4.route.flush=1
-sysctl -w net.ipv6.route.flush=1
 
 # additional kernel tweaks
 sysctl -w net.ipv4.tcp_mtu_probing=1
@@ -110,18 +108,18 @@ sysctl -w net.core.somaxconn=65535
 sysctl -w net.ipv4.tcp_max_syn_backlog=4096
 sysctl -w net.core.netdev_max_backlog=65535
 sysctl -w net.core.dev_weight=128
-sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+sysctl -w net.ipv4.ip_local_port_range="16384 65535"
 sysctl -w net.nf_conntrack_max=1000000
 sysctl -w net.netfilter.nf_conntrack_max=1000000
 sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
-sysctl -w net.ipv4.tcp_congestion_control=bbr
+sysctl -w net.ipv4.tcp_congestion_control=cubic
 sysctl -w net.core.default_qdisc=fq_codel
-sysctl -w net.core.optmem_max=16777216
-sysctl -w net.core.rmem_max=16777216
-sysctl -w net.core.wmem_max=16777216
+
+sysctl -w net.ipv4.route.flush=1
+sysctl -w net.ipv6.route.flush=1
 
 # tune the networking
-modprobe tcp_bbr
+modprobe tcp_cubic
 tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq_codel
 ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 15000
 ethtool -K $WG_VPS_MAIN_INTERFACE gro off gso off tso off
