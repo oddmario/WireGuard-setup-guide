@@ -23,7 +23,6 @@ Generally, we just need a way to link between the two servers (either WireGuard,
 - And similary, Server B needs to have at least one primary public IP address so we can use it inside the tunnel.
 - Make sure the following packages are installed on the systems of both server A and server B:
      - iproute2 (the `ip` command)
-     - ethtool
      - iproute-tc (the `tc` command)
      - wireguard (refer to https://www.wireguard.com/install/)
 
@@ -122,7 +121,6 @@ sysctl -w net.ipv6.route.flush=1
 modprobe tcp_cubic
 tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq_codel limit 99999999
 ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 999999999
-ethtool -K $WG_VPS_MAIN_INTERFACE gro off gso off tso off
 
 # clear all iptables rules
 iptables -F
@@ -161,7 +159,6 @@ iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_
 # tune the wireguard interface
 tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 99999999
 ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999999
-ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 ```
 
 `delWG.sh` on Server A:
@@ -257,7 +254,6 @@ ip route add default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
 # tune the wireguard interface
 tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 99999999
 ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999999
-ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
 ```
 
 `delWG.sh` on Server B:
@@ -530,7 +526,6 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      # tune the wireguard interface
      tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 99999999
      ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999999
-     ethtool -K $WG_TUNNEL_INTERFACE_NAME gro off gso off tso off
      ```
      
      delWG.sh on Server B (the backend server):
