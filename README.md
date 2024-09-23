@@ -104,23 +104,22 @@ sysctl -w fs.nr_open=2097152
 sysctl -w fs.aio-max-nr=2097152
 sysctl -w net.ipv4.tcp_syncookies=1
 sysctl -w net.core.somaxconn=65535
-sysctl -w net.ipv4.tcp_max_syn_backlog=4096
-sysctl -w net.core.netdev_max_backlog=999999
-sysctl -w net.core.dev_weight=128
+sysctl -w net.ipv4.tcp_max_syn_backlog=65535
+sysctl -w net.core.netdev_max_backlog=99999
 sysctl -w net.ipv4.ip_local_port_range="16384 65535"
 sysctl -w net.nf_conntrack_max=1000000
 sysctl -w net.netfilter.nf_conntrack_max=1000000
 sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
-sysctl -w net.ipv4.tcp_congestion_control=cubic
-sysctl -w net.core.default_qdisc=fq_codel
+sysctl -w net.ipv4.tcp_congestion_control=bbr
+sysctl -w net.core.default_qdisc=fq
 
 sysctl -w net.ipv4.route.flush=1
 sysctl -w net.ipv6.route.flush=1
 
 # tune the networking
 modprobe tcp_cubic
-tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq_codel limit 999999
-ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 999999
+tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq limit 99999 flow_limit 99999
+ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 99999
 
 # clear all iptables rules
 iptables -F
@@ -157,8 +156,8 @@ iptables -t nat -A POSTROUTING -s $WG_TUNNEL_GATEWAY_IP/24 ! -o $WG_TUNNEL_INTER
 iptables -t nat -A PREROUTING -d $WG_VPS_IP -j DNAT --to-destination $WG_TUNNEL_BACKEND_IP
 
 # tune the wireguard interface
-tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 999999
-ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999
+tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq limit 99999 flow_limit 99999
+ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 99999
 ```
 
 `delWG.sh` on Server A:
@@ -252,8 +251,8 @@ ip rule add from $WG_TUNNEL_GATEWAY_IP/24 table $WG_TUNNEL_RTTABLES_NAME
 ip route add default via $WG_TUNNEL_WGVPS_IP table $WG_TUNNEL_RTTABLES_NAME
 
 # tune the wireguard interface
-tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 999999
-ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999
+tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq limit 99999 flow_limit 99999
+ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 99999
 ```
 
 `delWG.sh` on Server B:
@@ -524,8 +523,8 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
      ip route add default via $WG_TUNNEL_WGVPS_IP metric 0
     
      # tune the wireguard interface
-     tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq_codel limit 999999
-     ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 999999
+     tc qdisc replace dev $WG_TUNNEL_INTERFACE_NAME root fq limit 99999 flow_limit 99999
+     ip link set $WG_TUNNEL_INTERFACE_NAME txqueuelen 99999
      ```
      
      delWG.sh on Server B (the backend server):
