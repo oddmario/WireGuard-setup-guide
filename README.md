@@ -117,7 +117,7 @@ sysctl -w net.ipv4.route.flush=1
 sysctl -w net.ipv6.route.flush=1
 
 # tune the networking
-modprobe tcp_cubic
+modprobe tcp_bbr
 tc qdisc replace dev $WG_VPS_MAIN_INTERFACE root fq limit 99999 flow_limit 99999
 ip link set $WG_VPS_MAIN_INTERFACE txqueuelen 99999
 
