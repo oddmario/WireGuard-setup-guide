@@ -303,7 +303,7 @@ ip link del $WG_TUNNEL_INTERFACE_NAME
   * Reboot the VPS after updating the system & disabling SELinux
 
 2. A bad provider for the WireGuard tunnel will cause packet loss.
-     An example of that is Aeza.net. See https://lowendtalk.com/discussion/192513/aeza-sweden-and-probably-other-locations-network-issues
+     An example of that is Aeza.net. See https://lowendtalk.com/discussion/192513/aeza-sweden-and-probably-other-locations-network-issues - However if you configure the MTUs to work for the provider properly, you may be able to fix the packet loss problem.
 
 3. Setting the incorrect MTU for the wg interface will cause packet loss and/or slow connectivity through the tunnel.
      It is recommended to always keep the default MTU values set by the provider, WireGuard and Linux.
